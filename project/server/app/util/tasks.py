@@ -44,9 +44,8 @@ def start_archiving(urls):
 
         file_url = "http://localhost:" + str(PORT) + "/archive/get/" + output_zip_file_name
 
-        # call the predefined webhook here if needed as archive generation job is now completed
-        job_completion_webhook()
-
+    # call the predefined webhook here if needed as archive generation job is now completed
+    job_completion_webhook(success, file_url, message)
     return prepare_task_completion_response(success, message, file_url)
 
 
@@ -125,6 +124,17 @@ def prepare_task_acceptance_response(is_success, task_id, error):
         return {"success": is_success, "message": error}
 
 
-def job_completion_webhook():
-    # call the webhook on job completion here.
-    print("Job complete, Webhook being called")
+def job_completion_webhook(success, file_url, message):
+    try:
+        # call the webhook on job completion here.
+        # enactment of calling a rest api here
+        current_app.logger.info("Job complete, Webhook being called")
+        params = {
+            "success": success,
+            "file_url": file_url,
+            "message": message
+        }
+        r = requests.get('http://www.google.com')
+        current_app.logger.info("text returned ", r.text)
+    except Exception as e:
+        current_app.logger.error("error occurred while calling webhook ", e)
