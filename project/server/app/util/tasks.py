@@ -2,6 +2,7 @@ import time
 import requests
 import zipfile
 import os
+from flask import current_app
 from project.server.app.constant.constants import WORKING_DIRECTORY, MAX_DOWNLOAD_RETRIES, PORT
 
 
@@ -15,7 +16,6 @@ def start_archiving(urls):
     with zipfile.ZipFile(output_path, 'w', compression=zipfile.ZIP_DEFLATED) as my_zip:
         for url in urls:
             try:
-                # file_name = download_file(url)
                 file_name = download_file_with_retry(url)
                 if file_name is not None:
                     my_zip.write(filename=file_name)
@@ -23,7 +23,7 @@ def start_archiving(urls):
                 else:
                     unreachable_urls.append(url)
             except Exception as e:
-                print("Error while downloading file :", e)
+                current_app.logger.error("Error while downloading file with url : " + url + " : " + str(e))
                 unreachable_urls.append(url)
 
         list_of_zipped_files = my_zip.namelist()
@@ -75,6 +75,7 @@ def fetch_and_save(url, local_filename):
             else:
                 return False
     except Exception as e:
+        current_app.logger.error("Error in fetching and saving url : " + url + " : " + str(e))
         return False
 
 
@@ -85,7 +86,7 @@ def download_file_with_retry(url):
         if CURRENT_RETRY < MAX_DOWNLOAD_RETRIES and fetch_and_save(url, local_filename):
             return local_filename
         elif CURRENT_RETRY < MAX_DOWNLOAD_RETRIES:
-            print("Retrying with val = " + str(CURRENT_RETRY) + " and url = " + url)
+            current_app.logger.info("Retrying with val = " + str(CURRENT_RETRY) + " and url = " + url)
             CURRENT_RETRY += 1
             time.sleep(2)
         else:

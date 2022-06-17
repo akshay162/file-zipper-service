@@ -16,6 +16,7 @@ def create_archive(urls):
         response = prepare_task_acceptance_response(True, task.get_id(), None)
         status_code = 202
     except Exception as e:
+        current_app.logger.error("Task Failed : " + str(e))
         response = prepare_task_acceptance_response(False, None, e)
         status_code = 500
 

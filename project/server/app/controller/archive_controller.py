@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request, make_response
+from flask import Blueprint, jsonify, request
 from project.server.app.service.archive import create_archive, get_task_status, download_local_file
 
 main_blueprint = Blueprint("main_blueprint", __name__)
